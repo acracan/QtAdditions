@@ -4,6 +4,7 @@ project(QtAdditions)
 
 add_definitions(-DUNICODE)
 add_definitions(-D_UNICODE)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Qt 5 stuff
 
@@ -11,15 +12,15 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 COMPONENTS Core REQUIRED)
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
-find_package(Qt5 COMPONENTS Gui REQUIRED)
+find_package(Qt6 COMPONENTS Core REQUIRED)
+find_package(Qt6 COMPONENTS Widgets REQUIRED)
+find_package(Qt6 COMPONENTS Gui REQUIRED)
 
 # QtAdditions
 
 add_library(QtAdditions
    README.md
-   src/QHeaderViewWithWIdgets.cpp   include/dak/QtAdditions/QHeaderViewWithWIdgets.h
+   src/QHeaderViewWithWidgets.cpp   include/dak/QtAdditions/QHeaderViewWithWidgets.h
    src/QtUtilities.cpp              include/dak/QtAdditions/QtUtilities.h
    src/QWidgetListItem.cpp          include/dak/QtAdditions/QWidgetListItem.h
    src/QWidgetScrollListWidget.cpp  include/dak/QtAdditions/QWidgetScrollListWidget.h
@@ -37,19 +38,16 @@ target_include_directories(QtAdditions PUBLIC
 )
 
 target_include_directories(QtAdditions PUBLIC
-   "${Qt5Core_INCLUDE_DIRS}"
-   "${Qt5Widgets_INCLUDE_DIRS}"
-   "${Qt5Gui_INCLUDE_DIRS}"
+   "${Qt6Core_INCLUDE_DIRS}"
+   "${Qt6Widgets_INCLUDE_DIRS}"
+   "${Qt6Gui_INCLUDE_DIRS}"
 )
 
 if (WIN32)
-
-find_package(Qt5 COMPONENTS WinExtras REQUIRED)
-
-target_include_directories(QtAdditions PUBLIC
-   "${Qt5WinExtras_INCLUDE_DIRS}"
-)
-
+    find_package(Qt6 COMPONENTS WinExtras REQUIRED)
+    target_include_directories(QtAdditions PUBLIC
+       "${Qt6WinExtras_INCLUDE_DIRS}"
+    )
 endif()
 
 add_subdirectory(examples/ExampleTableWithCombo EXCLUDE_FROM_ALL)
