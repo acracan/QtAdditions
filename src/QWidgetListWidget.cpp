@@ -21,29 +21,23 @@ namespace dak::QtAdditions
    //
    // Widget list panel.
 
-   QWidgetListWidget::QWidgetListWidget(ListModifiedCallbackFunction modifCallback, bool stretch, QBoxLayout::Direction dir, QWidget* parent)
-   : QFrame(parent), _modifCallback(modifCallback)
-   {
-      setBackgroundRole(QPalette::ColorRole::Base);
-      setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
-      setMinimumSize(QSize(20, 20));
-      if (!stretch)
-         setFrameStyle(QFrame::Box);
+QWidgetListWidget::QWidgetListWidget(QWidget *parent)
+    : QFrame(parent), _destructionPending(false), _modifCallback({})
+{
+    buildUi(true, QBoxLayout::Direction::TopToBottom);
+}
 
-      _layout = new QBoxLayout(dir);
-      _layout->setSizeConstraint(QLayout::SetMinimumSize);
-      _layout->setMargin(2);
-      _layout->setSpacing(0);
-      setLayout(_layout);
+QWidgetListWidget::QWidgetListWidget(ListModifiedCallbackFunction modifCallback, bool stretch, QBoxLayout::Direction dir, QWidget* parent)
+   : QFrame(parent), _destructionPending(false), _modifCallback(modifCallback)
+{
+    buildUi(stretch, dir);
+}
 
-      _dropHere = new QLabel(QString("Drop items here."));
-      _dropHere->setForegroundRole(QPalette::ColorRole::Mid);
-      _dropHere->setVisible(false);
-      _layout->addWidget(_dropHere);
-
-      if (stretch)
-         _layout->addStretch(0);
-   }
+QWidgetListWidget::~QWidgetListWidget()
+{
+    _destructionPending = true;
+    clear();
+}
 
    /////////////////////////////////////////////////////////////////////////
    //
@@ -99,6 +93,30 @@ namespace dak::QtAdditions
          }
          widget = widget->parentWidget();
       }
+   }
+
+   void QWidgetListWidget::buildUi(bool stretch, QBoxLayout::Direction dir)
+   {
+       setBackgroundRole(QPalette::ColorRole::Window);
+       setAutoFillBackground(true);
+       setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
+       setMinimumSize(QSize(20, 20));
+       if (!stretch)
+          setFrameStyle(QFrame::Box);
+
+       _layout = new QBoxLayout(dir);
+       _layout->setSizeConstraint(QLayout::SetMinimumSize);
+       _layout->setContentsMargins(2, 2, 2, 2);
+       _layout->setSpacing(0);
+       setLayout(_layout);
+
+       _dropHere = new QLabel(QString("Drop items here."));
+       _dropHere->setForegroundRole(QPalette::ColorRole::Mid);
+       _dropHere->setVisible(false);
+       _layout->addWidget(_dropHere);
+
+       if (stretch)
+          _layout->addStretch(0);
    }
 
    /////////////////////////////////////////////////////////////////////////
@@ -215,7 +233,7 @@ namespace dak::QtAdditions
       if (!mime)
          return event->ignore();
 
-      const QPoint position = event->pos();
+      const QPoint position = event->position().toPoint();
       QWidgetListItem* dropOn = findWidgetAt(position);
       const bool dropAbove = dropOn ? (position.y() < dropOn->pos().y() + dropOn->size().height() / 2) : false;
       const int dropIndexOffset = dropAbove ? 0 : 1;
@@ -239,6 +257,7 @@ namespace dak::QtAdditions
          else
          {
             movedWidget->select(!movedWidget->isSelected());
+            emit selectionChanged();
          }
          event->setDropAction(Qt::MoveAction);
          event->accept();
@@ -289,6 +308,7 @@ namespace dak::QtAdditions
          return;
 
       widget->select(!widget->isSelected());
+      emit selectionChanged();
    }
 
    QWidgetListItem* QWidgetListWidget::findWidgetAt(const QPoint& pt) const
@@ -304,7 +324,7 @@ namespace dak::QtAdditions
    {
       QFrame::childEvent(event);
 
-      if (event->type() == QEvent::ChildRemoved || event->type() == QEvent::ChildAdded)
+      if ((event->type() == QEvent::ChildRemoved || event->type() == QEvent::ChildAdded) && !_destructionPending)
       {
          QTimer::singleShot(1, [self = this]()
          {

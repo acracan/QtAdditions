@@ -1,92 +1,71 @@
 #include "dak/QtAdditions/QWidgetListItem.h"
 
 #include <mutex>
+#include <QPainter>
+#include <QDebug>
 
 namespace dak::QtAdditions
 {
-   using namespace std;
+    using namespace std;
 
-   namespace
-   {
-      QPalette _DefaultBackground;
-      QPalette _HighBackground;
-      QPalette _SelectedBackground;
+    QWidgetListItem::QWidgetListItem(QWidget* parent)
+        : QWidget(parent)
+    {
+        setAutoFillBackground(false);
+    }
 
-      once_flag initPalettes;
+    QWidgetListItem::~QWidgetListItem()
+    {
+    }
 
-      static vector<QWidgetListItem*> _HighlightedItems;
-   }
+    void QWidgetListItem::select(bool sel)
+    {
+        _selected = sel;
+        update();
+    }
 
-   QWidgetListItem::QWidgetListItem(QWidget* parent)
-   : QWidget(parent)
-   {
-      setBackgroundRole(QPalette::ColorRole::Base);
-      setAutoFillBackground(true);
+    QWidgetListItem* QWidgetListItem::clone() const
+    {
+        return new QWidgetListItem;
+    }
 
-      call_once(initPalettes, [self = this]()
-      {
-         _DefaultBackground = self->palette();
+    void QWidgetListItem::enterEvent(QEnterEvent *event)
+    {
+        QWidget::enterEvent(event);
+        _hovered = true;
+        update();
+    }
 
-         _HighBackground = self->palette();
-         _HighBackground.setColor(QPalette::ColorRole::Base, _HighBackground.color(QPalette::Highlight).lighter(210));
+    void QWidgetListItem::leaveEvent(QEvent* event)
+    {
+        QWidget::leaveEvent(event);
+        _hovered = false;
+        update();
+    }
 
-         _SelectedBackground = self->palette();
-         _SelectedBackground.setColor(QPalette::ColorRole::Base, _SelectedBackground.color(QPalette::Highlight));
-      });
-   }
+    void QWidgetListItem::paintEvent(QPaintEvent *e)
+    {
+        QPainter painter(this);
 
-   QWidgetListItem::~QWidgetListItem()
-   {
-      auto pos = std::find(_HighlightedItems.begin(), _HighlightedItems.end(), this);
-      if (pos != _HighlightedItems.end())
-         _HighlightedItems.erase(pos);
-   }
+        QBrush brush;
+        brush.setStyle(Qt::SolidPattern);
+        if (_selected) {
+            brush.setColor(palette().color(QPalette::Highlight));
+        }
+        else {
+            brush.setColor(palette().color(QPalette::Window));
+        }
+        painter.fillRect(0, 0, width(), height(), brush);
 
-   QWidgetListItem* QWidgetListItem::clone() const
-   {
-      return new QWidgetListItem;
-   }
+        QWidget::paintEvent(e);
 
-   void QWidgetListItem::enterEvent(QEvent* event)
-   {
-      QWidget::enterEvent(event);
-      HighlightBackground(true);
-   }
+        if (_hovered) {
 
-   void QWidgetListItem::leaveEvent(QEvent* event)
-   {
-      QWidget::leaveEvent(event);
-      HighlightBackground(false);
-   }
-
-   void QWidgetListItem::HighlightBackground(bool high)
-   {
-      if (high)
-      {
-         if (_HighlightedItems.size() > 0)
-         {
-            _HighlightedItems.back()->setPalette(_HighlightedItems.back()->_selected ? _SelectedBackground : _DefaultBackground);
-            _HighlightedItems.back()->update();
-         }
-
-         _HighlightedItems.push_back(this);
-         setPalette(_HighBackground);
-      }
-      else
-      {
-         setPalette(_selected ? _SelectedBackground : _DefaultBackground);
-         auto pos = std::find(_HighlightedItems.begin(), _HighlightedItems.end(), this);
-         if (pos != _HighlightedItems.end())
-            _HighlightedItems.erase(pos);
-
-         if (_HighlightedItems.size() > 0)
-         {
-            _HighlightedItems.back()->setPalette(_HighBackground);
-            _HighlightedItems.back()->update();
-         }
-      }
-      update();
-   }
-
+            QPen pen(palette().color(QPalette::Highlight).lighter(210));
+            pen.setWidth(0);
+            painter.setPen(pen);
+            painter.drawRect(1, 1, width()-2, height()-2);
+        }
+    }
 }
 

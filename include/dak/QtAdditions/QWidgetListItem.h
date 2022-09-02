@@ -3,7 +3,7 @@
 #ifndef QT_ADDITIONS_QWIDGET_LIST_ITEM_H
 #define QT_ADDITIONS_QWIDGET_LIST_ITEM_H
 
-#include <QtWidgets/qwidget.h>
+#include <QWidget>
 
 namespace dak::QtAdditions
 {
@@ -19,19 +19,19 @@ namespace dak::QtAdditions
 
       // Selection.
       bool isSelected() const { return _selected; }
-      void select(bool sel) { _selected = sel; update(); }
+      void select(bool sel);
 
       // Item cloning for drag-and-drop.
       virtual QWidgetListItem* clone() const;
 
    protected:
       // Used to draw highlights.
-      void enterEvent(QEvent* event) override;
+      void enterEvent(QEnterEvent* event) override;
       void leaveEvent(QEvent* event) override;
-
-      void HighlightBackground(bool high);
+      void paintEvent(QPaintEvent *e) override;
 
       bool _selected = false;
+      bool _hovered = false;
 
       Q_OBJECT;
    };

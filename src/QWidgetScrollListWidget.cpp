@@ -8,6 +8,8 @@ namespace dak::QtAdditions
    : QScrollArea(parent)
    {
       setWidget(widget);
+      setBackgroundRole(QPalette::Window);
+      setAutoFillBackground(true);
 
       bool isVertical = true;
       if (auto list = dynamic_cast<QWidgetListWidget*>(widget))

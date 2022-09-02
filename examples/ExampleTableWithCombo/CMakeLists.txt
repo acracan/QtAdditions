@@ -11,9 +11,9 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 COMPONENTS Core REQUIRED)
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
-find_package(Qt5 COMPONENTS Gui REQUIRED)
+find_package(Qt6 COMPONENTS Core REQUIRED)
+find_package(Qt6 COMPONENTS Widgets REQUIRED)
+find_package(Qt6 COMPONENTS Gui REQUIRED)
 
 add_executable(ExampleTableWithCombo WIN32
    Main.cpp
@@ -22,7 +22,7 @@ add_executable(ExampleTableWithCombo WIN32
 
 target_link_libraries(ExampleTableWithCombo PUBLIC
    QtAdditions
-   Qt5::Widgets Qt5::Gui Qt5::Core
+   Qt6::Widgets Qt6::Gui Qt6::Core
 )
 
 target_compile_features(ExampleTableWithCombo PUBLIC
@@ -34,6 +34,6 @@ target_include_directories(ExampleTableWithCombo PUBLIC
 )
 
 add_custom_command(TARGET ExampleTableWithCombo POST_BUILD
-   COMMAND "${Qt5_DIR}/../../../bin/windeployqt.exe" --no-webkit2 --no-angle --no-system-d3d-compiler --no-opengl-sw "$<TARGET_FILE:ExampleTableWithCombo>"
+   COMMAND "${Qt6_DIR}/../../../bin/windeployqt.exe" --no-webkit2 --no-angle --no-system-d3d-compiler --no-opengl-sw "$<TARGET_FILE:ExampleTableWithCombo>"
 )
 

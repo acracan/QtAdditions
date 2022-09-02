@@ -28,7 +28,9 @@ namespace dak::QtAdditions
       using ListModifiedCallbackFunction = std::function<void(QWidgetListWidget * list)>;
 
       // Create a widget list widget.
+      QWidgetListWidget(QWidget * parent = nullptr);
       QWidgetListWidget(ListModifiedCallbackFunction modifCallback = {}, bool stretch = true, QBoxLayout::Direction dir = QBoxLayout::Direction::TopToBottom, QWidget * parent = nullptr);
+      ~QWidgetListWidget();
 
       // Check if the list is vertical or horizontal.
       bool isVertical() const;
@@ -47,6 +49,8 @@ namespace dak::QtAdditions
 
       // Retrieve all selected widget items kept directly in this list widget.
       std::vector<QWidgetListItem*> getSelectedItems() const;
+   signals:
+      void selectionChanged();
 
    protected:
       // Cloning an item when dropping into another list widget.
@@ -75,6 +79,9 @@ namespace dak::QtAdditions
       // Ensure the widget has enough width to show its items.
       void propagateMinimumDimension();
 
+      void buildUi(bool stretch, QBoxLayout::Direction dir);
+
+      bool _destructionPending;
       ListModifiedCallbackFunction _modifCallback;
       QBoxLayout* _layout = nullptr;
       QLabel* _dropHere = nullptr;
