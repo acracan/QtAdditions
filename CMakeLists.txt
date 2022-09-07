@@ -43,13 +43,6 @@ target_include_directories(QtAdditions PUBLIC
    "${Qt6Gui_INCLUDE_DIRS}"
 )
 
-if (WIN32)
-    find_package(Qt6 COMPONENTS WinExtras REQUIRED)
-    target_include_directories(QtAdditions PUBLIC
-       "${Qt6WinExtras_INCLUDE_DIRS}"
-    )
-endif()
-
 add_subdirectory(examples/ExampleTableWithCombo EXCLUDE_FROM_ALL)
 add_subdirectory(examples/ExampleWidgetList EXCLUDE_FROM_ALL)
 add_subdirectory(examples/ExampleListHeaderWidget EXCLUDE_FROM_ALL)

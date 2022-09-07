@@ -1,9 +1,5 @@
 #include "dak/QtAdditions/QtUtilities.h"
 
-#ifdef WIN32
-#include <QtWinExtras/qwinfunctions.h>
-#endif
-
 #include <QtWidgets/qfiledialog.h>
 #include <QtWidgets/qerrormessage.h>
 #include <QtWidgets/qmessagebox.h>
@@ -18,9 +14,10 @@ namespace dak::QtAdditions
    QPixmap CreatePixmapFromResource(int res)
    {
       #ifdef WIN32
-         QPixmap pixmap = QtWin::fromHBITMAP((HBITMAP)::LoadBitmap(GetModuleHandle(0), MAKEINTRESOURCE(res)), QtWin::HBitmapNoAlpha);
-         pixmap.setMask(pixmap.createMaskFromColor(QColor(255, 255, 255, 255)));
-         return pixmap;
+//         QPixmap pixmap = QtWin::fromHBITMAP((HBITMAP)::LoadBitmap(GetModuleHandle(0), MAKEINTRESOURCE(res)), QtWin::HBitmapNoAlpha);
+//         pixmap.setMask(pixmap.createMaskFromColor(QColor(255, 255, 255, 255)));
+//         return pixmap;
+         return QPixmap();
       #else
          return QPixmap();
       #endif
